@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>מחשבון פלייאוף - ליגת הכדורסל</title>
+    <style>
+        :root { --primary: #1a237e; --accent: #ff6d00; --bg: #f0f2f5; }
+        body { font-family: 'Segoe UI', system-ui; background: var(--bg); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        
+        .setup-panel { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 30px; width: 100%; max-width: 800px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .select-group { display: flex; flex-direction: column; gap: 8px; }
+        select { padding: 10px; border-radius: 8px; border: 1px solid #ddd; font-size: 16px; cursor: pointer; }
+        
+        .bracket-container { display: flex; justify-content: center; gap: 20px; width: 100%; max-width: 1100px; overflow-x: auto; padding: 20px; }
+        .column { display: flex; flex-direction: column; justify-content: space-around; gap: 15px; }
+        
+        .matchup { background: white; border: 1px solid #ccc; border-radius: 6px; width: 220px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); overflow: hidden; }
+        .team { padding: 12px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; font-size: 14px; }
+        .team:last-child { border-bottom: none; }
+        .team.winner { font-weight: bold; background: #fff8f0; }
+        
+        .label { font-weight: bold; color: var(--primary); margin-bottom: 10px; font-size: 18px; text-align: center; }
+        h1 { color: var(--primary); margin-bottom: 10px; }
+        .info { color: #666; margin-bottom: 20px; font-size: 14px; }
+    </style>
+</head>
+<body>
+
+    <h1>מחשבון בראקט פלייאוף</h1>
+    <p class="info">בחר שילוב של תרחיש צמרת ותרחיש תחתית כדי לראות את הבראקט המעודכן</p>
+
+    <div class="setup-panel">
+        <div class="select-group">
+            <label>תסריט צמרת (מקום 2-5):</label>
+            <select id="topSide" onchange="build()">
+                <option value="1">תסריט צמרת 1 (רחובות 2, נהריה 3, חיפה 4, אשדוד 5)</option>
+                <option value="2">תסריט צמרת 2 (נהריה 2, רחובות 3, חיפה 4, אשדוד 5)</option>
+                <option value="3">תסריט צמרת 3 (רחובות 2, חיפה 3, נהריה 4, אשדוד 5)</option>
+                <option value="4">תסריט צמרת 4 (רחובות 2, נהריה 3, אשדוד 4, חיפה 5)</option>
+                <option value="5">תסריט צמרת 5 (נהריה 2, חיפה 3, רחובות 4, אשדוד 5)</option>
+            </select>
+        </div>
+        <div class="select-group">
+            <label>תסריט תחתית (מקום 7-9):</label>
+            <select id="bottomSide" onchange="build()">
+                <option value="1">תסריט תחתית 1 (שומרון 7, רמה"ש 8, מגדל 9)</option>
+                <option value="2">תסריט תחתית 2 (עוטף דרום 7, שומרון 8, רמה"ש 9)</option>
+                <option value="3">תסריט תחתית 3 (שומרון 7, מגדל 8, רמה"ש 9)</option>
+                <option value="4">תסריט תחתית 4 (שומרון 7, רמה"ש 8, יבנה 9)</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="bracket-container">
+        <!-- רבע גמר -->
+        <div class="column">
+            <div class="label">רבע גמר</div>
+            <div class="matchup" id="m1"></div>
+            <div class="matchup" id="m2"></div>
+            <div class="matchup" id="m3"></div>
+            <div class="matchup" id="m4"></div>
+        </div>
+
+        <!-- חצי גמר -->
+        <div class="column">
+            <div class="label">חצי גמר</div>
+            <div class="matchup"><div class="team">מנצחת (2-9)</div><div class="team">מנצחת (5-6)</div></div>
+            <div class="matchup"><div class="team">מנצחת (3-8)</div><div class="team">מנצחת (4-7)</div></div>
+        </div>
+
+        <!-- גמר -->
+        <div class="column">
+            <div class="label">גמר</div>
+            <div class="matchup" style="border: 2px solid var(--accent);">
+                <div class="team" style="justify-content: center; font-weight: bold; padding: 30px 0;">🏆 גמר הליגה</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const topScenarios = {
+            "1": { 2: "רחובות", 3: "נהריה", 4: "הפועל חיפה", 5: "אשדוד" },
+            "2": { 2: "נהריה", 3: "רחובות", 4: "הפועל חיפה", 5: "אשדוד" },
+            "3": { 2: "רחובות", 3: "הפועל חיפה", 4: "נהריה", 5: "אשדוד" },
+            "4": { 2: "רחובות", 3: "נהריה", 4: "אשדוד", 5: "הפועל חיפה" },
+            "5": { 2: "נהריה", 3: "הפועל חיפה", 4: "רחובות", 5: "אשדוד" }
+        };
+
+        const botScenarios = {
+            "1": { 7: "אליצור שומרון", 8: "רמת השרון", 9: "מגדל העמק" },
+            "2": { 7: "עוטף דרום", 8: "אליצור שומרון", 9: "רמת השרון" },
+            "3": { 7: "אליצור שומרון", 8: "מגדל העמק", 9: "רמת השרון" },
+            "4": { 7: "אליצור שומרון", 8: "רמת השרון", 9: "אליצור יבנה" }
+        };
+
+        function build() {
+            const topVal = document.getElementById('topSide').value;
+            const botVal = document.getElementById('bottomSide').value;
+            
+            const T = topScenarios[topVal];
+            const B = botScenarios[botVal];
+            const A6 = "אליצור אשקלון";
+
+            // הצלבות: 2-9, 5-6, 3-8, 4-7
+            fill('m1', `(2) ${T[2]}`, `(9) ${B[9]}`);
+            fill('m2', `(5) ${T[5]}`, `(6) ${A6}`);
+            fill('m3', `(3) ${T[3]}`, `(8) ${B[8]}`);
+            fill('m4', `(4) ${T[4]}`, `(7) ${B[7]}`);
+        }
+
+        function fill(id, teamA, teamB) {
+            document.getElementById(id).innerHTML = `
+                <div class="team"><span>${teamA}</span></div>
+                <div class="team"><span>${teamB}</span></div>
+            `;
+        }
+
+        // הרצה ראשונית
+        build();
+    </script>
+</body>
+</html>
