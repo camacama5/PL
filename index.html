@@ -2,19 +2,36 @@
 <html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>מחשבון פלייאוף - תרחישים מתקדמים</title>
+    <title>מחשבון פלייאוף - בחירה חופשית</title>
     <style>
         :root { --primary: #1a237e; --accent: #ff6d00; --bg: #f4f7f9; }
-        body { font-family: 'Segoe UI', system-ui; background: var(--bg); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
-        .control-panel { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 30px; width: 100%; max-width: 1000px; display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
-        .group { border: 1px solid #eee; padding: 15px; border-radius: 10px; }
-        .group-title { font-weight: bold; margin-bottom: 10px; color: var(--primary); border-bottom: 2px solid var(--accent); display: inline-block; }
-        select { width: 100%; padding: 8px; border-radius: 5px; cursor: pointer; }
-        .bracket { display: flex; gap: 30px; justify-content: center; margin-top: 20px; width: 100%; overflow-x: auto; }
+        body { font-family: 'Segoe UI', system-ui; background: var(--bg); margin: 0; padding: 20px; direction: rtl; }
+        h1 { text-align: center; color: var(--primary); }
+        
+        .control-panel { 
+            background: white; padding: 20px; border-radius: 15px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin: 0 auto 30px; 
+            max-width: 1000px; display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; 
+        }
+
+        .group { display: flex; flex-direction: column; gap: 5px; }
+        label { font-weight: bold; font-size: 0.9em; color: #555; }
+        select { padding: 8px; border-radius: 6px; border: 1px solid #ccc; font-family: inherit; }
+        
+        .error-msg { 
+            grid-column: 1 / -1; color: #d32f2f; background: #ffcdd2; 
+            padding: 10px; border-radius: 8px; text-align: center; 
+            display: none; font-weight: bold;
+        }
+
+        .bracket { display: flex; gap: 40px; justify-content: center; flex-wrap: wrap; }
         .column { display: flex; flex-direction: column; gap: 20px; }
-        .matchup { background: white; border: 1px solid #ddd; border-radius: 8px; width: 220px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .team { padding: 12px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; }
-        .seed { background: #eee; padding: 2px 6px; border-radius: 4px; font-size: 12px; font-weight: bold; }
+        .matchup { background: white; border: 1px solid #ddd; border-radius: 10px; width: 230px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .team { padding: 12px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; }
+        .team:last-child { border-bottom: none; }
+        .seed { background: var(--primary); color: white; padding: 2px 7px; border-radius: 4px; font-size: 12px; margin-left: 8px; }
+        .home { font-weight: bold; background: #f9f9f9; }
     </style>
 </head>
 <body>
@@ -22,103 +39,34 @@
     <h1>מחשבון תרחישי פלייאוף</h1>
 
     <div class="control-panel">
+        <div id="duplicate-error" class="error-msg">שים לב: קבוצה נבחרה ביותר ממיקום אחד!</div>
+        
         <div class="group">
-            <div class="group-title">קרב על המקום ה-2 וה-3</div>
-            <select id="top23" onchange="update()">
-                <option value="R-N">רחובות 2, נהריה 3</option>
-                <option value="N-R">נהריה 2, רחובות 3 (נהריה ניצחה 17+)</option>
-                <option value="H-R">חיפה 2, רחובות 3, נהריה 4</option>
-            </select>
+            <label>מקום 2</label>
+            <select id="s2" onchange="update()"></select>
         </div>
-
         <div class="group">
-            <div class="group-title">קרב על המקום ה-4 וה-5</div>
-            <select id="top45" onchange="update()">
-                <option value="H-A">חיפה 4, אשדוד 5</option>
-                <option value="A-H">אשדוד 4, חיפה 5 (אשדוד ניצחה הכל)</option>
-                <option value="A-AS">אשדוד 4, אשקלון 5, חיפה 6</option>
-            </select>
+            <label>מקום 3</label>
+            <select id="s3" onchange="update()"></select>
         </div>
 
         <div class="group">
-            <div class="group-title">הכניסה לבית העליון (מקום 6)</div>
-            <select id="top6" onchange="update()">
-                <option value="AS">אשקלון 6</option>
-                <option value="SH">שומרון 6 (שומרון ניצחה הכל, אשקלון הפסידה)</option>
-                <option value="H">הפועל חיפה 6</option>
-            </select>
+            <label>מקום 4</label>
+            <select id="s4" onchange="update()"></select>
+        </div>
+        <div class="group">
+            <label>מקום 5</label>
+            <select id="s5" onchange="update()"></select>
+        </div>
+        <div class="group">
+            <label>מקום 6</label>
+            <select id="s6" onchange="update()"></select>
         </div>
 
         <div class="group">
-            <div class="group-title">דירוג הפלייאוף (7-9)</div>
-            <select id="bot789" onchange="update()">
-                <option value="S-R-M">שומרון 7, רמה"ש 8, מגדל 9</option>
-                <option value="O-S-R">עוטף 7, שומרון 8, רמה"ש 9</option>
-                <option value="S-M-R">שומרון 7, מגדל 8, רמה"ש 9</option>
-                <option value="S-R-Y">שומרון 7, רמה"ש 8, יבנה 9</option>
-            </select>
+            <label>מקום 7</label>
+            <select id="s7" onchange="update()"></select>
         </div>
-    </div>
-
-    <div class="bracket">
-        <div class="column">
-            <h3>רבע גמר</h3>
-            <div class="matchup" id="m1"></div>
-            <div class="matchup" id="m2"></div>
-            <div class="matchup" id="m3"></div>
-            <div class="matchup" id="m4"></div>
-        </div>
-        <div class="column">
-            <h3>חצי גמר</h3>
-            <div class="matchup"><div class="team">מנצחת 2-9</div><div class="team">מנצחת 5-6</div></div>
-            <div class="matchup"><div class="team">מנצחת 3-8</div><div class="team">מנצחת 4-7</div></div>
-        </div>
-    </div>
-
-    <script>
-        function update() {
-            let seeds = {};
-            const t23 = document.getElementById('top23').value;
-            const t45 = document.getElementById('top45').value;
-            const t6 = document.getElementById('top6').value;
-            const b789 = document.getElementById('bot789').value;
-
-            // לוגיקה לפי בחירה
-            if(t23 === "R-N") { seeds[2]="רחובות"; seeds[3]="נהריה"; }
-            else if(t23 === "N-R") { seeds[2]="נהריה"; seeds[3]="רחובות"; }
-            else { seeds[2]="ה. חיפה"; seeds[3]="רחובות"; seeds[4]="נהריה"; }
-
-            if(t45 === "H-A") { if(!seeds[4]) seeds[4]="ה. חיפה"; seeds[5]="אשדוד"; }
-            else if(t45 === "A-H") { seeds[4]="אשדוד"; seeds[5]="ה. חיפה"; }
-            else { seeds[4]="אשדוד"; seeds[5]="אשקלון"; if(!seeds[6]) seeds[6]="ה. חיפה"; }
-
-            if(!seeds[6]) seeds[6] = (t6 === "AS") ? "אשקלון" : (t6 === "SH" ? "שומרון" : "ה. חיפה");
-
-            const bot = {
-                "S-R-M": ["שומרון", "רמה\"ש", "מגדל העמק"],
-                "O-S-R": ["עוטף דרום", "שומרון", "רמה\"ש"],
-                "S-M-R": ["שומרון", "מגדל העמק", "רמה\"ש"],
-                "S-R-Y": ["שומרון", "רמה\"ש", "יבנה"]
-            }[b789];
-            
-            seeds[7]=bot[0]; seeds[8]=bot[1]; seeds[9]=bot[2];
-
-            // אם שומרון עלתה ל-6, נשים מישהו אחר ב-7 (נניח אשקלון שירדה)
-            if(seeds[6] === "שומרון" && seeds[7] === "שומרון") seeds[7] = "אשקלון";
-
-            render('m1', 2, seeds[2], 9, seeds[9]);
-            render('m2', 5, seeds[5], 6, seeds[6]);
-            render('m3', 3, seeds[3], 8, seeds[8]);
-            render('m4', 4, seeds[4], 7, seeds[7]);
-        }
-
-        function render(id, s1, t1, s2, t2) {
-            document.getElementById(id).innerHTML = `
-                <div class="team"><span><span class="seed">${s1}</span> ${t1}</span></div>
-                <div class="team"><span><span class="seed">${s2}</span> ${t2}</span></div>
-            `;
-        }
-        update();
-    </script>
-</body>
-</html>
+        <div class="group">
+            <label>מקום 8</label>
+            <select id="s8"
